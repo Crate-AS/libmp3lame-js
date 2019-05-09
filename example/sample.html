@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>libMp3Lame.js Test</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">LibMp3Lame.js</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
+            aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Sample
+                        <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="https://github.com/logue/libmp3lame-js">libmp3lame.js</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main role="main" class="container my-3">
+        <h1>JavaScript Convert Wav to MP3(LAME)</h1>
+        <section>
+            <h2>Simple Test</h2>
+            <dl>
+                <dt>Original WAVE File</dt>
+                <dd><audio src="./HelloWorld.wav" controls="controls" id="source">HelloWorld.wav</audio></dd>
+                <dt>Convert to MP3</dt>
+                <dd><button type="button" class="btn btn-primary" id="execute">Convert and Play</button></dd>
+            </dl>
+            <pre class="pre" id="output"></pre>
+        </section>
+    </main>
+
+    <footer>
+        <address class="container mb-0">
+            <a href="https://github.com/logue/libmp3lame-js">LibMp3Lame-JS</a>
+            <i class="far fa-copyright"></i> 2013,2019 by
+            <a href="https://logue.be/">Logue</a>. Licensed under the
+            <a href="https://opensource.org/licenses/LGPL-3.0">LGPL</a>.
+        </address>
+    </footer>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+    <script src="wav.js"></script>
+    <script>
+        const encoderWorker = new Worker('../dist/EncoderWorker.js');
+
+        // Utility Functions
+        function encode64(buffer) {
+            let binary = '',
+                bytes = new Uint8Array(buffer),
+                len = bytes.byteLength;
+
+            for (var i = 0; i < len; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return window.btoa(binary);
+        }
+
+
+        function Uint8ArrayToFloat32Array(u8a) {
+            var f32Buffer = new Float32Array(u8a.length);
+            for (var i = 0; i < u8a.length; i++) {
+                var value = u8a[i << 1] + (u8a[(i << 1) + 1] << 8);
+                if (value >= 0x8000) value |= ~0x7FFF;
+                f32Buffer[i] = value / 0x8000;
+            }
+            return f32Buffer;
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            document.getElementById('execute').onclick = function () {
+                var self = this,
+                    originalText = this.innerText,
+                    xhr = new XMLHttpRequest();
+
+                this.setAttribute("disabled", "disabled");
+                this.innerText = 'Loading...';
+
+                xhr.open('GET', document.getElementById('source').src, true);
+                xhr.responseType = 'blob';
+                xhr.onload = function (e) {
+                    const data = new wav(xhr.response);
+                    data.onloadend = function () {
+                        self.innerText = 'Converting...';
+                        data.getSamples();
+
+                        encoderWorker.postMessage({
+                            cmd: 'init', config: {
+                                mode: 4,
+                                channels: data.numChannels,
+                                samplerate: data.sampleRate,
+                                bitlate: data.bitsPerSample
+                            }
+                        });
+
+                        var u8a = new Uint8Array(data.buffer);
+                        encoderWorker.postMessage({ cmd: 'encode', buf: Uint8ArrayToFloat32Array(u8a) });
+                        encoderWorker.postMessage({ cmd: 'finish' });
+                        encoderWorker.onmessage = function (e) {
+                            switch (e.data.res) {
+                                case 'ready':
+                                    document.getElementById('output').innerHTML = `
+Version: ${e.data.version}
+Mode: ${e.data.mode}  (0:STEREO 1:JOINT_STEREO 2:DUAL_CHANNEL 3:MONO 4:NOT_SET 5:MAX_INDICATOR)
+Samples: ${e.data.samples}
+Channels: ${e.data.channels}
+Input Sample Rate: ${e.data.input_samplerate}
+Output Sample Rate: ${e.data.output_samplerate}
+Bitrate: ${e.data.bitrate}
+VBR: ${e.data.vbr}  (0:OFF 1:MT 2:RH 3:ABR 4:MTRH)
+VBR Q: ${e.data.vbr_q}
+VBR mean bitrate: ${e.data.vbr_mean_bitrate}
+VBR min bitrate: ${e.data.vbr_min_bitrate}
+VBR max bitrate: ${e.data.vbr_max_bitrate}
+`;
+                                case 'encoded':
+                                    var audio = new Audio();
+
+                                    self.removeAttribute("disabled");
+                                    self.innerText = originalText;
+
+                                    audio.src = 'data:audio/mp3;base64,' + encode64(e.data.buf);
+                                    audio.play();
+                                    break;
+
+                            }
+                        };
+                    };
+                };
+
+                xhr.send();
+            }
+        });
+    </script>
+</body>
+
+</html>
