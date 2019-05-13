@@ -2,137 +2,317 @@
 <html lang="ja">
 
 <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-    <title>libMp3Lame.js Test</title>
+  <title>libMp3Lame.js Test</title>
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">LibMp3Lame.js</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
-            aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">LibMp3Lame.js</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
+      aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">Sample
-                        <span class="sr-only">(current)</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="https://github.com/logue/libmp3lame-js">libmp3lame.js</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
+    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Sample
+            <span class="sr-only">(current)</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/logue/libmp3lame-js">libmp3lame.js</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
 
-    <main role="main" class="container my-3">
-        <h1>JavaScript Convert Wav to MP3(LAME)</h1>
-        <section>
-            <h2>Simple Test</h2>
-            <dl>
-                <dt>Original WAVE File</dt>
-                <dd><audio src="./HelloWorld.wav" controls="controls" id="source">HelloWorld.wav</audio></dd>
-                <dt>Convert to MP3</dt>
-                <dd><button type="button" class="btn btn-primary" id="execute">Convert and Play</button></dd>
-            </dl>
-            <pre class="pre" id="output"></pre>
-        </section>
-    </main>
+  <main role="main" class="container my-3">
+    <h1>JavaScript Convert Wav to MP3(LAME)</h1>
+    <section>
+      <h2>Simple Test</h2>
+      <dl>
+        <dt>Audio source</dt>
+        <dd>
+          <div class="custom-file">
+            <input type="file" class="custom-file-input" id="file" accept="audio/wav">
+            <label class="custom-file-label" for="customFile">Choose Audio file</label>
+          </div>
+        </dd>
+        <dt>Original WAVE File</dt>
+        <dd>
+          <div class="row">
+            <div class="col">
+              <audio controls="controls" id="source"></audio>
+              <button class="btn btn-secondary" id="wav_dl">Download *.wav</button>
+            </div>
+            <div class="col">
+              <div class="d-flex align-items-center" id="wav_spinner">
+                <strong>Loading...</strong>
+                <div class="spinner-border ml-auto" role="status" aria-hidden="true"></div>
+              </div>
+              <pre class="border bg-light" id="wav_info" style="display:none;"></pre>
+            </div>
+          </div>
+        </dd>
+        <dt>Convert to MP3</dt>
+        <dd>
+          <div class="form-group row">
+            <label class="col-sm-2 col-form-label col-form-label-sm">Mode</label>
+            <div class="col-sm-10">
+              <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="radio_mode_0" name="mode" class="custom-control-input" value="0">
+                <label class="custom-control-label" for="radio_mode_0">STEREO</label>
+              </div>
+              <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="radio_mode_1" name="mode" class="custom-control-input" value="1">
+                <label class="custom-control-label" for="radio_mode_1">JOINT_STEREO</label>
+              </div>
+              <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="radio_mode_3" name="mode" class="custom-control-input" value="3">
+                <label class="custom-control-label" for="radio_mode_3">MONO</label>
+              </div>
+              <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="radio_mode_4" name="mode" class="custom-control-input" value="4" checked>
+                <label class="custom-control-label" for="radio_mode_4">NOT_SET</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-2 col-form-label col-form-label-sm">VBR</label>
+            <div class="col-sm-10">
+              <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="radio_vbr_0" name="vbr" class="custom-control-input" value="0" checked>
+                <label class="custom-control-label" for="radio_vbr_0">OFF</label>
+              </div>
+              <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="radio_vbr_1" name="vbr" class="custom-control-input" value="1">
+                <label class="custom-control-label" for="radio_vbr_1">MT</label>
+              </div>
+              <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="radio_vbr_2" name="vbr" class="custom-control-input" value="2">
+                <label class="custom-control-label" for="radio_vbr_2">RH</label>
+              </div>
+              <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="radio_vbr_3" name="vbr" class="custom-control-input" value="3">
+                <label class="custom-control-label" for="radio_vbr_3">ABR</label>
+              </div>
+              <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" id="radio_vbr_4" name="vbr" class="custom-control-input" value="4">
+                <label class="custom-control-label" for="radio_vbr_4">MRTH</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-2 col-form-label col-form-label-sm">Bitrate</label>
+            <div class="col-sm-10">
+              <div class="d-flex">
+                <input type="range" class="custom-range" min="0" max="320" id="bitrate" step="8">
+                <div id="bitrate_value"></div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-2 col-form-label col-form-label-sm" for="channels">Channels</label>
+            <div class="col-sm-10">
+              <input type="spinner" readonly class="form-control" id="channels" value="1" min="1">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-2 col-form-label col-form-label-sm" for="sampleRate">SampleRate</label>
+            <div class="col-sm-10">
+              <select class="form-control" id="samplerate">
+                <option value="8000">8kHz</option>
+                <option value="11025">11kHz</option>
+                <option value="22050">22kHz</option>
+                <option value="44100" checked>44.1kHz</option>
+                <option value="48000">48kHz</option>
+                <option value="88200">88.2kHz</option>
+                <option value="96000">96kHz</option>
+                <option value="192000">192kHz</option>
+              </select>
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary" id="convert">Convert</button>
+        </dd>
+        <dt>Result</dt>
+        <dd>
+          <div class="row">
+            <div class="col">
+              <audio disabled="disabled" controls="controls" id="result"></audio>
+              <button class="btn btn-secondary" id="mp3_dl">Download *.mp3</button>
+            </div>
+            <div class="col">
+              <div class="d-flex align-items-center" id="mp3spinner" style="visibility:hidden">
+                <strong>Loading...</strong>
+                <div class="spinner-border ml-auto" role="status" aria-hidden="true"></div>
+              </div>
+              <pre class="border bg-light" id="mp3_info"></pre>
+            </div>
+          </div>
+        </dd>
+      </dl>
 
-    <footer>
-        <address class="container mb-0">
-            <a href="https://github.com/logue/libmp3lame-js">LibMp3Lame-JS</a>
-            <i class="far fa-copyright"></i> 2013,2019 by
-            <a href="https://logue.be/">Logue</a>. Licensed under the
-            <a href="https://opensource.org/licenses/LGPL-3.0">LGPL</a>.
-        </address>
-    </footer>
+    </section>
+  </main>
 
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-        crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-        crossorigin="anonymous"></script>
+  <footer>
+    <address class="container mb-0">
+      <a href="https://github.com/logue/libmp3lame-js">LibMp3Lame-JS</a>
+      <i class="far fa-copyright"></i> 2013,2019 by
+      <a href="https://logue.be/">Logue</a>. Licensed under the
+      <a href="https://opensource.org/licenses/LGPL-3.0">LGPL</a>.
+    </address>
+  </footer>
 
-    <script src="wav.js"></script>
-    <script>
-        const encoderWorker = new Worker('../dist/EncoderWorker.js');
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
 
-        // Utility Functions
-        function encode64(buffer) {
-            let binary = '',
-                bytes = new Uint8Array(buffer),
-                len = bytes.byteLength;
+  <script src="wav.js"></script>
+  <script>/*<![CDATA[*/
+    const source = document.getElementById('source');
+    const result = document.getElementById('result');
+    const convert_btn = document.getElementById('convert');
+    const wav_spinner = document.getElementById('wav_spinner');
+    const wav_output = document.getElementById('wav_info');
+    const wav_dl = document.getElementById('wav_dl');
+    const mp3_spinner = document.getElementById('mp3_spinner');
+    const mp3_output = document.getElementById('mp3_info');
+    const mp3_dl = document.getElementById('mp3_dl');
+    const channels = document.getElementById('channels');
+    const bitrate = document.getElementById('bitrate');
+    const samplerate = document.getElementById('samplerate');
 
-            for (var i = 0; i < len; i++) {
-                binary += String.fromCharCode(bytes[i]);
-            }
-            return window.btoa(binary);
+    // Utility Functions
+    function encode64(buffer) {
+      let binary = '',
+        bytes = new Uint8Array(buffer),
+        len = bytes.byteLength;
+
+      for (var i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return window.btoa(binary);
+    }
+
+    function ArrayBufferToFloat32Array(buffer) {
+      // create a uint8 view on the ArrayBuffer
+      const u8a = new Uint8Array(buffer);
+      // length, we need this for the loop
+      const len = u8a.length;
+      // create the Float32Array for output
+      let f32a = new Float32Array(len);
+      for (let i = 0; i < len; i++) {
+        let value = u8a[i << 1] + (u8a[(i << 1) + 1] << 8);
+        if (value >= 0x8000) value |= ~0x7FFF;
+        f32a[i] = value / 0x8000;
+      }
+      // return the Float32Array
+      return f32a;
+    }
+
+    function download(file_name, mime_type, text) {
+      // Anything but IE works here
+      if (undefined === window.navigator.msSaveOrOpenBlob) {
+        var e = document.createElement('a');
+        var href = 'data:' + mime_type + ';base64,' + encodeURIComponent(text);
+        e.setAttribute('href', href);
+        e.setAttribute('download', file_name);
+        document.body.appendChild(e);
+        e.click();
+        document.body.removeChild(e);
+      }
+      // IE-specific code
+      else {
+        var charCodeArr = new Array(text.length);
+        for (var i = 0; i < text.length; ++i) {
+          var charCode = text.charCodeAt(i);
+          charCodeArr[i] = charCode;
         }
+        var blob = new Blob([new Uint8Array(charCodeArr)], { type: mime_type });
+        window.navigator.msSaveOrOpenBlob(blob, file_name);
+      }
+    }
 
+    function AnalyzeWav(file) {
+      const data = new wav(file);
+      wav_info.style.display = 'none';
+      wav_spinner.style.visibility = 'visible';
 
-        function Uint8ArrayToFloat32Array(u8a) {
-            var f32Buffer = new Float32Array(u8a.length);
-            for (var i = 0; i < u8a.length; i++) {
-                var value = u8a[i << 1] + (u8a[(i << 1) + 1] << 8);
-                if (value >= 0x8000) value |= ~0x7FFF;
-                f32Buffer[i] = value / 0x8000;
-            }
-            return f32Buffer;
+      // stop player
+      try {
+        source.stop();
+        result.stop();
+      } catch (e) { }
+
+      data.onloadend = function () {
+        // Analyzed
+        let buffer = this.buffer;
+        let b64 = encode64(buffer);
+        source.src = 'data:audio/wav;base64,' + b64;
+        wav_spinner.style.visibility = 'hidden';
+        wav_info.style.display = 'block';
+        wav_info.innerHTML = this;
+
+        // Wav download button
+        wav_dl.onclick = function () {
+          download('source.wav', 'audio/wav', b64);
         }
+        mp3_dl.setAttribute("disabled", "disabled");
 
+        // update form value
+        bitrate.value = data.bitsPerSample;
+        document.getElementById('bitrate_value').innerText = bitrate.value + 'kbps';
+        samplerate.value = data.sampleRate;
+        // channels.value = data.numChannels;
 
-        document.addEventListener('DOMContentLoaded', function () {
+        // Convert button
+        convert_btn.onclick = function () {
+          //if (data.compression !== 1){
+          //    alert('This wav file does not PCM. (compressed)');
+          //    return;
+          //}
 
-            document.getElementById('execute').onclick = function () {
-                var self = this,
-                    originalText = this.innerText,
-                    xhr = new XMLHttpRequest();
+          this.setAttribute("disabled", "disabled");
+          this.innerHTML = '<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>Loading...';
 
-                this.setAttribute("disabled", "disabled");
-                this.innerText = 'Loading...';
+          const encoderWorker = new Worker('../dist/EncoderWorker.js');
+          encoderWorker.postMessage({
+            cmd: 'init',
+            config: {
+              mode: document.querySelector('[name="mode"]:checked').value,
+              channels: channels.value,
+              input_samplerate: data.sampleRate,
+              output_samplerate: samplerate.value,
+              bitrate: bitrate.value,
+              vbr: document.querySelector('[name="vbr"]:checked').value
+            }
+          });
 
-                xhr.open('GET', document.getElementById('source').src, true);
-                xhr.responseType = 'blob';
-                xhr.onload = function (e) {
-                    const data = new wav(xhr.response);
-                    data.onloadend = function () {
-                        self.innerText = 'Converting...';
-                        data.getSamples();
+          encoderWorker.postMessage({ cmd: 'encode', buf: ArrayBufferToFloat32Array(buffer) });
+          encoderWorker.postMessage({ cmd: 'finish' });
+          encoderWorker.onmessage = function (e) {
+            switch (e.data.res) {
+              case 'ready':
 
-                        encoderWorker.postMessage({
-                            cmd: 'init', config: {
-                                mode: 4,
-                                channels: data.numChannels,
-                                samplerate: data.sampleRate,
-                                bitlate: data.bitsPerSample
-                            }
-                        });
-
-                        var u8a = new Uint8Array(data.buffer);
-                        encoderWorker.postMessage({ cmd: 'encode', buf: Uint8ArrayToFloat32Array(u8a) });
-                        encoderWorker.postMessage({ cmd: 'finish' });
-                        encoderWorker.onmessage = function (e) {
-                            switch (e.data.res) {
-                                case 'ready':
-                                    document.getElementById('output').innerHTML = `
-Version: ${e.data.version}
+                mp3_info.innerHTML = `Version: ${e.data.version}
 Mode: ${e.data.mode}  (0:STEREO 1:JOINT_STEREO 2:DUAL_CHANNEL 3:MONO 4:NOT_SET 5:MAX_INDICATOR)
 Samples: ${e.data.samples}
 Channels: ${e.data.channels}
@@ -143,27 +323,48 @@ VBR: ${e.data.vbr}  (0:OFF 1:MT 2:RH 3:ABR 4:MTRH)
 VBR Q: ${e.data.vbr_q}
 VBR mean bitrate: ${e.data.vbr_mean_bitrate}
 VBR min bitrate: ${e.data.vbr_min_bitrate}
-VBR max bitrate: ${e.data.vbr_max_bitrate}
-`;
-                                case 'encoded':
-                                    var audio = new Audio();
+VBR max bitrate: ${e.data.vbr_max_bitrate}`;
+                break;
+              case 'encoded':
+                convert_btn.removeAttribute("disabled");
+                convert_btn.innerHTML = 'Convert';
+                let stream = encode64(e.data.buf);
+                result.src = 'data:audio/mp3;base64,' + stream;
+                const playPromise = result.play();
+                if (playPromise !== null) {
+                  playPromise.catch(() => { result.play(); })
+                }
+                mp3_dl.removeAttribute("disabled");
+                mp3_dl.onclick = function () {
+                  download('result.mp3', 'audio/mp3', stream);
+                }
+                break;
 
-                                    self.removeAttribute("disabled");
-                                    self.innerText = originalText;
-
-                                    audio.src = 'data:audio/mp3;base64,' + encode64(e.data.buf);
-                                    audio.play();
-                                    break;
-
-                            }
-                        };
-                    };
-                };
-
-                xhr.send();
             }
-        });
-    </script>
+          };
+        };
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      // Load Default wav file.
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', 'HelloWorld.wav', true);
+      xhr.responseType = 'blob';
+      xhr.onload = function (e) {
+        AnalyzeWav(xhr.response);
+      }
+      xhr.send();
+
+      document.getElementById('file').onchange = function (e) {
+        AnalyzeWav(e.target.files[0]);
+      }
+      document.getElementById('bitrate').onchange = function () {
+        document.getElementById('bitrate_value').innerText = this.value + 'kbps';
+      }
+    });
+
+    /*]]>*/</script>
 </body>
 
 </html>

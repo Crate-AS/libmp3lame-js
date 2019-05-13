@@ -1,5 +1,5 @@
   // libmp3lame function wrappers
-  var BUFSIZE = 8192;
+  var BUFSIZE = 1024000;
   return {
     // MPEG modes
     STEREO: 0,

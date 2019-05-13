@@ -2,8 +2,10 @@ EMCC:=emcc
 EMCC_OPTS:=\
     --memory-init-file 0 \
     -fno-exceptions \
+    --llvm-lto 1 \
     --pre-js pre.js \
     --post-js post.js \
+    -s ALLOW_MEMORY_GROWTH=1 \
     -s LINKABLE=1 \
     -s NO_FILESYSTEM=1 \
     -s ABORTING_MALLOC=0 \
@@ -37,7 +39,7 @@ dist/libmp3lame.js: $(LAME) pre.js post.js
 	$(EMCC) -O1 -s WASM=0 $(EMCC_OPTS) -s ASSERTIONS=1 $(wildcard $(LAME)/libmp3lame/*.o) -o $@
 
 dist/libmp3lame.min.js: $(LAME) pre.js post.js
-	$(EMCC) -Oz --llvm-lto 1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 $(EMCC_OPTS) $(wildcard $(LAME)/libmp3lame/*.o) -o $@
+	$(EMCC) -Oz -s ASM_JS=1 -s WASM=0 $(EMCC_OPTS) $(wildcard $(LAME)/libmp3lame/*.o) -o $@
 
 $(LAME): $(LAME).tar.gz
 	$(TAR) xzvf $@.tar.gz && \
@@ -49,7 +51,7 @@ $(LAME).tar.gz:
 	test -e "$@" || wget $(LAME_URL)
 
 clean:
-	$(RM) -rf $(LAME) ./dist/*.js ./dist/*.wasm ./dist/*.mem
+	$(RM) -rf $(LAME) ./dist/libmp3lame.* ./dist/libmp3lame.*.*
 
 distclean: clean
 	$(RM) $(LAME).tar.gz
