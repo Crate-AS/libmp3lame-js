@@ -293,7 +293,8 @@
           this.setAttribute("disabled", "disabled");
           this.innerHTML = '<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>Loading...';
 
-          const encoderWorker = new Worker('../dist/EncoderWorker.js');
+          //const encoderWorker = new Worker('../dist/EncoderWorker.js');
+          const encoderWorker = new Worker('https://cdn.jsdelivr.net/gh/logue/libmp3lame-js@master/dist/libmp3lame.min.js');
           encoderWorker.postMessage({
             cmd: 'init',
             config: {
