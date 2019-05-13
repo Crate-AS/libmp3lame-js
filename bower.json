@@ -1,7 +1,7 @@
 {
   "name": "libmp3lame.js",
-  "version": "3.100",
-  "main": "dist/libmp3lame.js",
+  "version": "1.1",
+  "main": "dist/libmp3lame.min.js",
   "ignore": [],
   "dependencies": {
   }
